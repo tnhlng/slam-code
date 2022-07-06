@@ -104,7 +104,7 @@ Tracking::Tracking(
     K.at<float>(1,1) = fy;
     K.at<float>(0,2) = cx;
     K.at<float>(1,2) = cy;
-    K.copyTo(mK);
+    K.copyTo(mK);//为什么不用 mK = K? opencv中赋值为浅拷贝，copyto为深拷贝
 
     // 图像矫正系数
     // [k1 k2 p1 p2 k3]

@@ -93,7 +93,7 @@ System::System(const string &strVocFile,					//词典文件路径
     mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);//包含词库的指针，以及单词的倒排索引
 
     //Create the Map
-    mpMap = new Map();//关联所以地图点和关键帧
+    mpMap = new Map();//关联所有地图点和关键帧
 
     //Create Drawers. These are used by the Viewer
     //这里的帧绘制器和地图绘制器将会被可视化的Viewer所使用

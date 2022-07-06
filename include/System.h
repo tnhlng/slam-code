@@ -60,9 +60,9 @@ public:
     // Input sensor
     //这个枚举类型用于 表示本系统所使用的传感器类型
     enum eSensor{
-        MONOCULAR=0,
-        STEREO=1,
-        RGBD=2
+        MONOCULAR=0,//单目
+        STEREO=1,//立体
+        RGBD=2//rgbd
     };
 
 public:
