@@ -216,7 +216,7 @@ private:
     // Change mode flags
     //模式改变标志
     std::mutex mMutexMode;
-    bool mbActivateLocalizationMode;
+    bool mbActivateLocalizationMode;//具体含义是什么？什么作用。
     bool mbDeactivateLocalizationMode;
 
     // Tracking state

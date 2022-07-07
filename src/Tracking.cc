@@ -123,7 +123,7 @@ Tracking::Tracking(
     DistCoef.copyTo(mDistCoef);
 
     // 双目摄像头baseline * fx 50
-    mbf = fSettings["Camera.bf"];
+    mbf = fSettings["Camera.bf"];//基线长度 * 焦距
 
     float fps = fSettings["Camera.fps"];
     if(fps==0)
@@ -171,19 +171,19 @@ Tracking::Tracking(
     // 如果默认阈值提取不出足够fast特征点，则使用最小阈值 8
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
 
-    // tracking过程都会用到mpORBextractorLeft作为特征点提取器
+    // tracking过程都会用到mpORBextractorLeft作为特征点提取器,主要包括特征点提取及特征描述子（图像金字塔）
     mpORBextractorLeft = new ORBextractor(
         nFeatures,      //参数的含义还是看上面的注释吧
         fScaleFactor,
         nLevels,
         fIniThFAST,
-        fMinThFAST);
+        fMinThFAST);//ORBextractor为专门的特征点提取器，独立组件。
 
     // 如果是双目，tracking过程中还会用用到mpORBextractorRight作为右目特征点提取器
     if(sensor==System::STEREO)
         mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
-    // 在单目初始化的时候，会用mpIniORBextractor来作为特征点提取器
+    // 在单目初始化的时候，会用mpIniORBextractor来作为特征点提取器 //TODO 初始化阶段提取的特征点翻倍？
     if(sensor==System::MONOCULAR)
         mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
@@ -388,7 +388,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im,const double &timestamp)
         mCurrentFrame = Frame(
             mImGray,
             timestamp,
-            mpIniORBextractor,      //初始化ORB特征点提取器会提取2倍的指定特征点数目
+            mpIniORBextractor,      //初始化ORB特征点提取器会提取2倍的指定特征点数目，该提取器在构造时指定了两倍的特征点数量。
             mpORBVocabulary,
             mK,
             mDistCoef,

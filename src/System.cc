@@ -117,6 +117,7 @@ System::System(const string &strVocFile,					//词典文件路径
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, 				//指定使iomanip
     								 mSensor==MONOCULAR);	// 判断是不是单目
+
     //创建这个局部建图线程，这个localmapping线程将会执行localmapping::Run这个函数，传递一个LocalMapping的this指针mpLocalMapper
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,	//这个线程会调用的函数
     							 mpLocalMapper);				//这个调用函数的参数
@@ -305,12 +306,12 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
         // 独占锁，主要是为了mbActivateLocalizationMode和mbDeactivateLocalizationMode不会发生混乱
         unique_lock<mutex> lock(mMutexMode);
         // mbActivateLocalizationMode为true会关闭局部地图线程
-        if(mbActivateLocalizationMode)//默认为false
+        if(mbActivateLocalizationMode)//是否激活定位模式，默认为false，间断性执行。
         {
-            mpLocalMapper->RequestStop();
+            mpLocalMapper->RequestStop();//请求局部建图线程停止
 
             // Wait until Local Mapping has effectively stopped
-            while(!mpLocalMapper->isStopped())
+            while(!mpLocalMapper->isStopped())//等待局部建图器停止。
             {
                 usleep(1000);
             }
@@ -322,9 +323,9 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
             mbActivateLocalizationMode = false;
         }
         // 如果mbDeactivateLocalizationMode是true，局部地图线程就被释放, 关键帧从局部地图中删除.
-        if(mbDeactivateLocalizationMode)
+        if(mbDeactivateLocalizationMode)//间断性执行
         {
-            mpTracker->InformOnlyTracking(false);
+            mpTracker->InformOnlyTracking(false);//不止是跟踪。
             mpLocalMapper->Release();
             mbDeactivateLocalizationMode = false;
         }
@@ -345,8 +346,8 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;
-    mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
-    mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
+    mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;//特征点
+    mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;//矫正后的特征点。
 
     return Tcw;
 }

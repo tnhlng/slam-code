@@ -508,6 +508,7 @@ ORBextractor::ORBextractor(int _nfeatures,		//指定要提取的特征点数目
 	//图片降采样缩放系数的倒数
     float factor = 1.0f / scaleFactor;
 	//第0层图像应该分配的特征点数量
+    //按照共nlevels层的图像，第0层图像为最小的图像，分配n个特征点，那么第1层图像分配特征点为f*n个，总共分配特征点数量为nfeatures个，按照等比数列求和求解得第0层分配特征点数量。
     float nDesiredFeaturesPerScale = nfeatures*(1 - factor)/(1 - (float)pow((double)factor, (double)nlevels));
 
 	//用于在特征点个数分配的，特征点的累计计数清空

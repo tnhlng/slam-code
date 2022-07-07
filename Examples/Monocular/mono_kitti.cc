@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     {
         // Read image from file
         im = cv::imread(vstrImageFilenames[ni],cv::IMREAD_UNCHANGED);
-        double tframe = vTimestamps[ni];
+        double tframe = vTimestamps[ni];//该帧图像对应的时间戳
 
         if(im.empty())
         {

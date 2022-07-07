@@ -49,7 +49,7 @@ LocalMapping::LocalMapping(Map *pMap, const float bMonocular):
      * mbStopped：          为true表示可以并终止localmapping 线程
      * mbNotStop：          true，表示不要停止 localmapping 线程，因为要插入关键帧了。需要和 mbStopped 结合使用
      * mbAcceptKeyFrames：  true，允许接受关键帧。tracking 和local mapping 之间的关键帧调度
-     * mbAbortBA：          是否流产BA优化的标志位
+     * mbAbortBA：          是否终止BA优化的标志位
      * mbFinishRequested：  请求终止当前线程的标志。注意只是请求，不一定终止。终止要看 mbFinished
      * mbResetRequested：   请求当前线程复位的标志。true，表示一直请求复位，但复位还未完成；表示复位完成为false
      * mbFinished：         判断最终LocalMapping::Run() 是否完成的标志。
