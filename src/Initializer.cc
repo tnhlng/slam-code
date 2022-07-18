@@ -49,13 +49,13 @@ namespace ORB_SLAM2
  * @param[in] sigma                 测量误差
  * @param[in] iterations            RANSAC迭代次数
  */
-Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iterations)
+Initializer::Initializer(const Frame &referenceFrame, float sigma, int iterations)
 {
 	//从参考帧中获取相机的内参数矩阵
-    mK = ReferenceFrame.mK.clone();
+    mK = referenceFrame.mK.clone();
 	
 	// 从参考帧中获取去畸变后的特征点
-    mvKeys1 = ReferenceFrame.mvKeysUn;
+    mvKeys1 = referenceFrame.mvKeysUn;
 	
 	//获取估计误差
     mSigma = sigma;

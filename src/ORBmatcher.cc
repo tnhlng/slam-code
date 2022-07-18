@@ -556,7 +556,7 @@ int ORBmatcher::SearchByProjection(KeyFrame* pKF, cv::Mat Scw, const vector<MapP
 /**
  * @brief 单目初始化中用于参考帧和当前帧的特征点匹配
  * 步骤
- * Step 1 构建旋转直方图
+ * Step 1 构建旋转直方图--也就是方向梯度直方图
  * Step 2 在半径窗口内搜索当前帧F2中所有的候选匹配特征点 
  * Step 3 遍历搜索搜索窗口中的所有潜在的匹配候选点，找到最优的和次优的
  * Step 4 对最优次优结果进行检查，满足阈值、最优/次优比例，删除重复匹配
@@ -594,7 +594,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
     for(size_t i1=0, iend1=F1.mvKeysUn.size(); i1<iend1; i1++)
     {
         cv::KeyPoint kp1 = F1.mvKeysUn[i1];
-        int level1 = kp1.octave;
+        int level1 = kp1.octave;//该关键点（特征）是从图像金字塔哪一层提取出来的。
         // 只使用原始图像上提取的特征点
         if(level1>0)
             continue;
