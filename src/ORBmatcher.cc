@@ -574,7 +574,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
 {
     int nmatches=0;
     // F1中特征点和F2中匹配关系，注意是按照F1特征点数目分配空间
-    vnMatches12 = vector<int>(F1.mvKeysUn.size(),-1);
+    vnMatches12 = vector<int>(F1.mvKeysUn.size(),-1);//保存F1中的各个特征点 在F2中是否有相匹配的，如果没有值为-1，否则值为匹配到的F2特征点的下标索引
 
     // Step 1 构建旋转直方图，HISTO_LENGTH = 30
     vector<int> rotHist[HISTO_LENGTH];
@@ -600,8 +600,9 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
             continue;
 
         // Step 2 在半径窗口内搜索当前帧F2中所有的候选匹配特征点 
-        // vbPrevMatched 输入的是参考帧 F1的特征点
+        // vbPrevMatched 输入的是参考帧 F1的特征点，也就是只有F1的数据，但是该数据当做两个参数传进来了。
         // windowSize = 100，输入最大最小金字塔层级 均为0
+        //放回F2中，在这个搜索范围内的所有特征点的 F2.mvKeysUn中的下标。
         vector<size_t> vIndices2 = F2.GetFeaturesInArea(vbPrevMatched[i1].x,vbPrevMatched[i1].y, windowSize,level1,level1);
 
         // 没有候选特征点，跳过
@@ -621,7 +622,7 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
             size_t i2 = *vit;
             // 取出候选特征点对应的描述子
             cv::Mat d2 = F2.mDescriptors.row(i2);
-            // 计算两个特征点描述子距离
+            // 计算两个特征点描述子距离（二进制串的汉明距离）
             int dist = DescriptorDistance(d1,d2);
 
             if(vMatchedDistance[i2]<=dist)
@@ -643,13 +644,13 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
         // 即使算出了最佳描述子匹配距离，也不一定保证配对成功。要小于设定阈值
         if(bestDist<=TH_LOW)
         {
-            // 最佳距离比次佳距离要小于设定的比例，这样特征点辨识度更高
+            // 最佳距离比次佳距离要小于设定的比例，这样特征点辨识度更高,最佳距离bestDist<bestDist2.
             if(bestDist<(float)bestDist2*mfNNratio)
             {
-                // 如果找到的候选特征点对应F1中特征点已经匹配过了，说明发生了重复匹配，将原来的匹配也删掉
-                if(vnMatches21[bestIdx2]>=0)
+                // 如果找到的候选特征点对应F1中特征点已经匹配过了，说明发生了重复匹配，将原来的匹配也删掉(也就是存在多个特征点相似，不太确定的都不要)
+                if(vnMatches21[bestIdx2]>=0)//默认值为-1，>=0表示有匹配到点
                 {
-                    vnMatches12[vnMatches21[bestIdx2]]=-1;
+                    vnMatches12[vnMatches21[bestIdx2]]=-1;//置为默认值。
                     nmatches--;
                 }
                 // 次优的匹配关系，双向建立

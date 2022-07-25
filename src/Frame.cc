@@ -595,12 +595,13 @@ vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const f
 
     // Step 1 计算半径为r圆左右上下边界所在的网格列和行的id
     // 查找半径为r的圆左侧边界所在网格列坐标。这个地方有点绕，慢慢理解下：
+    // mnMinX为图像经过畸变矫正后设定的图像可用边界（因为矫正后，原来的方正图像边界将呈弧线，为了避免后续坐标落入无效的图像像素中）
     // (mnMaxX-mnMinX)/FRAME_GRID_COLS：表示列方向每个网格可以平均分得几个像素（肯定大于1）
     // mfGridElementWidthInv=FRAME_GRID_COLS/(mnMaxX-mnMinX) 是上面倒数，表示每个像素可以均分几个网格列（肯定小于1）
 	// (x-mnMinX-r)，可以看做是从图像的左边界mnMinX到半径r的圆的左边界区域占的像素列数
 	// 两者相乘，就是求出那个半径为r的圆的左侧边界在哪个网格列中
     // 保证nMinCellX 结果大于等于0
-    const int nMinCellX = max(0,(int)floor( (x-mnMinX-r)*mfGridElementWidthInv));
+    const int nMinCellX = max(0,(int)floor( (x-mnMinX-r)*mfGridElementWidthInv));//将图像划分为有限（FRAME_GRID_COLS=64）的网格，此处计算特征点（x,y）的 半径r的左边界位于哪个网格中。
 
 
 	// 如果最终求得的圆的左边界所在的网格列超过了设定了上限，那么就说明计算出错，找不到符合要求的特征点，返回空vector
@@ -625,7 +626,7 @@ vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const f
     // 检查需要搜索的图像金字塔层数范围是否符合要求
     //? 疑似bug。(minLevel>0) 后面条件 (maxLevel>=0)肯定成立
     //? 改为 const bool bCheckLevels = (minLevel>=0) || (maxLevel>=0);
-    const bool bCheckLevels = (minLevel>0) || (maxLevel>=0);
+    const bool bCheckLevels = (minLevel>0) || (maxLevel>=0);//是否需要检查特征点所属的金字塔层。
 
     // Step 2 遍历圆形区域内的所有网格，寻找满足条件的候选特征点，并将其index放到输出里
     for(int ix = nMinCellX; ix<=nMaxCellX; ix++)
@@ -648,7 +649,7 @@ vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const f
                 {
 					// cv::KeyPoint::octave中表示的是从金字塔的哪一层提取的数据
 					// 保证特征点是在金字塔层级minLevel和maxLevel之间，不是的话跳过
-                    if(kpUn.octave<minLevel)
+                    if(kpUn.octave<minLevel)//0是尺寸最大的图像层。level越大，图像尺寸越小。
                         continue;
                     if(maxLevel>=0)		//? 为何特意又强调？感觉多此一举
                         if(kpUn.octave>maxLevel)
@@ -659,7 +660,7 @@ vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const f
                 const float distx = kpUn.pt.x-x;
                 const float disty = kpUn.pt.y-y;
 
-				// 如果x方向和y方向的距离都在指定的半径之内，存储其index为候选特征点
+				// 如果x方向和y方向的距离都在指定的半径之内（准确来说应该是一个方格内，而不是半径。），存储其index为候选特征点
                 if(fabs(distx)<r && fabs(disty)<r)
                     vIndices.push_back(vCell[j]);
             }
